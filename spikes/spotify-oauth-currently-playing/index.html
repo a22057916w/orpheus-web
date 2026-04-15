@@ -1,0 +1,67 @@
+﻿<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Orpheus Spotify OAuth Spike</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="intro">
+      <p class="eyebrow">Orpheus Web Spike</p>
+      <h1>Spotify 目前播放測試</h1>
+      <p>
+        這個頁面只測 Phase 0：Spotify OAuth、目前播放歌曲、播放進度，以及假歌詞同步。
+        它不是正式 UI，也不會儲存你的 client id 以外的長期資料。
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>1. Spotify App 設定</h2>
+      <p>在 Spotify Developer Dashboard 建立 app，Redirect URI 填入：</p>
+      <code id="redirectUri"></code>
+      <label for="clientId">Client ID</label>
+      <input id="clientId" placeholder="貼上 Spotify Client ID" autocomplete="off" />
+      <div class="actions">
+        <button id="saveClientId">儲存 Client ID</button>
+        <button id="login">登入 Spotify</button>
+        <button id="logout" class="secondary">清除登入</button>
+      </div>
+    </section>
+
+    <section class="panel status-panel">
+      <h2>2. 目前狀態</h2>
+      <pre id="status">尚未登入。</pre>
+      <div class="actions">
+        <button id="refresh">讀取目前播放</button>
+        <button id="play" class="secondary">播放</button>
+        <button id="pause" class="secondary">暫停</button>
+        <button id="previous" class="secondary">上一首</button>
+        <button id="next" class="secondary">下一首</button>
+      </div>
+    </section>
+
+    <section class="player">
+      <img id="artwork" alt="" />
+      <div>
+        <p class="eyebrow">Now Playing</p>
+        <h2 id="trackTitle">尚未讀取歌曲</h2>
+        <p id="trackMeta">登入後，先在 Spotify 任一裝置播放一首歌，再按讀取。</p>
+        <div class="progress">
+          <div id="progressBar"></div>
+        </div>
+        <p id="progressText">0:00 / 0:00</p>
+      </div>
+    </section>
+
+    <section class="lyrics panel">
+      <h2>3. 假歌詞同步</h2>
+      <p>這裡先用測試資料確認「播放進度 -> 高亮歌詞」這件事成立。</p>
+      <ol id="lyrics"></ol>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

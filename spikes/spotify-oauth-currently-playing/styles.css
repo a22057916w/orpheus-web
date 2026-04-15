@@ -1,0 +1,158 @@
+﻿:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #101312;
+  color: #eef2ef;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #101312 0%, #19221f 48%, #2b2f26 100%);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.shell {
+  width: min(1040px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 48px 0;
+}
+
+.intro,
+.panel,
+.player {
+  margin-bottom: 20px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #8fd6b0;
+  font-size: 0.78rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: clamp(2rem, 7vw, 4.5rem);
+  line-height: 0.95;
+  max-width: 780px;
+}
+
+.panel,
+.player {
+  border: 1px solid rgba(238, 242, 239, 0.18);
+  border-radius: 8px;
+  background: rgba(16, 19, 18, 0.72);
+  padding: 20px;
+}
+
+label {
+  display: block;
+  margin: 16px 0 8px;
+  color: #c9d7cf;
+}
+
+input {
+  width: 100%;
+  border: 1px solid rgba(238, 242, 239, 0.24);
+  border-radius: 8px;
+  background: #0b0d0c;
+  color: #eef2ef;
+  padding: 12px 14px;
+}
+
+code,
+pre {
+  display: block;
+  overflow: auto;
+  border-radius: 8px;
+  background: #0b0d0c;
+  color: #d7f7e5;
+  padding: 12px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+button {
+  border: 0;
+  border-radius: 8px;
+  background: #66d19e;
+  color: #07100b;
+  cursor: pointer;
+  padding: 10px 14px;
+  font-weight: 700;
+}
+
+button.secondary {
+  background: #25302b;
+  color: #eef2ef;
+}
+
+.player {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
+#artwork {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  background: #27302c;
+  object-fit: cover;
+}
+
+.progress {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #2d3832;
+}
+
+#progressBar {
+  width: 0%;
+  height: 100%;
+  background: #66d19e;
+}
+
+#lyrics {
+  display: grid;
+  gap: 10px;
+  padding-left: 24px;
+}
+
+#lyrics li {
+  color: #96a69d;
+  line-height: 1.5;
+}
+
+#lyrics li.active {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+@media (max-width: 680px) {
+  .player {
+    grid-template-columns: 1fr;
+  }
+}
