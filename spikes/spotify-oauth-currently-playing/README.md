@@ -2,6 +2,8 @@
 
 This is a disposable spike for Phase 0 in `PLAN.md`: validating Spotify OAuth, currently playing data, playback progress, and lyric highlighting before building the real Orpheus Web app.
 
+For a beginner-friendly walkthrough of how `index.html`, `styles.css`, and `app.js` work together, read [`GUIDE.md`](./GUIDE.md).
+
 It tests:
 
 - Spotify OAuth with PKCE
@@ -39,4 +41,7 @@ Then copy the app Client ID into the page.
 Spotify playback control may require Spotify Premium and an active Spotify device.
 
 This spike intentionally avoids Next.js, backend code, and databases. It is only for validating the core idea before building the real app.
+
+
+
 

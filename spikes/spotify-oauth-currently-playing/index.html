@@ -1,12 +1,20 @@
 ﻿<!doctype html>
+<!--
+  HTML is the structure of the page.
+  Think of it as the document outline: sections, headings, buttons, inputs, and empty slots that JavaScript fills later.
+-->
 <html lang="zh-Hant">
 <head>
+  <!-- UTF-8 lets the browser display Chinese and other Unicode text correctly. -->
   <meta charset="utf-8" />
+  <!-- This makes the layout match the device width, which is required for responsive mobile pages. -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Orpheus Spotify OAuth Spike</title>
+  <!-- CSS is loaded from a separate file so structure and styling stay separate. -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- main marks the primary content of the page. The shell class gives us a centered page width in CSS. -->
   <main class="shell">
     <section class="intro">
       <p class="eyebrow">Orpheus Web Spike</p>
@@ -17,13 +25,21 @@
       </p>
     </section>
 
+    <!--
+      Each section is a small feature area.
+      id attributes such as redirectUri and clientId are hooks for JavaScript: document.querySelector('#clientId').
+      class attributes such as panel and actions are hooks for CSS: .panel and .actions.
+    -->
     <section class="panel">
       <h2>1. Spotify App 設定</h2>
       <p>在 Spotify Developer Dashboard 建立 app，Redirect URI 填入：</p>
+      <!-- JavaScript writes the current local URL here so you can copy it into Spotify settings. -->
       <code id="redirectUri"></code>
+      <!-- label's for="clientId" connects this label to the input with id="clientId". -->
       <label for="clientId">Client ID</label>
       <input id="clientId" placeholder="貼上 Spotify Client ID" autocomplete="off" />
       <div class="actions">
+        <!-- Buttons do nothing by themselves here. JavaScript attaches click handlers to them. -->
         <button id="saveClientId">儲存 Client ID</button>
         <button id="login">登入 Spotify</button>
         <button id="logout" class="secondary">清除登入</button>
@@ -32,6 +48,7 @@
 
     <section class="panel status-panel">
       <h2>2. 目前狀態</h2>
+      <!-- pre preserves whitespace, so JSON debug output stays readable. -->
       <pre id="status">尚未登入。</pre>
       <div class="actions">
         <button id="refresh">讀取目前播放</button>
@@ -42,12 +59,14 @@
       </div>
     </section>
 
+    <!-- This area is filled from Spotify's currently-playing API response. -->
     <section class="player">
       <img id="artwork" alt="" />
       <div>
         <p class="eyebrow">Now Playing</p>
         <h2 id="trackTitle">尚未讀取歌曲</h2>
         <p id="trackMeta">登入後，先在 Spotify 任一裝置播放一首歌，再按讀取。</p>
+        <!-- The inner progressBar div changes width from 0% to 100%. -->
         <div class="progress">
           <div id="progressBar"></div>
         </div>
@@ -58,10 +77,12 @@
     <section class="lyrics panel">
       <h2>3. 假歌詞同步</h2>
       <p>這裡先用測試資料確認「播放進度 -> 高亮歌詞」這件事成立。</p>
+      <!-- JavaScript creates <li> lyric rows and puts them inside this ordered list. -->
       <ol id="lyrics"></ol>
     </section>
   </main>
 
+  <!-- Load JavaScript at the end so the HTML elements above already exist when app.js runs. -->
   <script src="app.js"></script>
 </body>
 </html>

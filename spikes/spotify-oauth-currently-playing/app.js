@@ -1,9 +1,23 @@
-﻿const scopes = [
+﻿/*
+  This file is plain browser JavaScript.
+  No framework is involved yet, so it is a good place to learn the browser basics:
+  DOM selection, events, fetch, localStorage, async/await, and timers.
+*/
+
+/*
+  OAuth scopes describe what this page asks permission to do.
+  Spotify shows these permissions to the user during login.
+*/
+const scopes = [
   'user-read-currently-playing',
   'user-read-playback-state',
   'user-modify-playback-state'
 ];
 
+/*
+  Fake synced lyrics.
+  Real synced lyrics will use the same idea: each line has a start time in milliseconds.
+*/
 const lyrics = [
   { startMs: 0, text: 'Intro: 等待 Spotify 回報播放進度。', translation: 'This is a local test lyric line.' },
   { startMs: 10000, text: '第一句：如果這行亮起，代表時間同步邏輯可行。', translation: 'If this line is highlighted, sync works.' },
@@ -12,6 +26,10 @@ const lyrics = [
   { startMs: 45000, text: '第四句：Phase 0 只驗證核心可行性。', translation: 'Phase 0 only proves the core idea.' }
 ];
 
+/*
+  Cache DOM elements in one object.
+  document.querySelector('#clientId') finds the element with id="clientId".
+*/
 const elements = {
   redirectUri: document.querySelector('#redirectUri'),
   clientId: document.querySelector('#clientId'),
@@ -32,20 +50,34 @@ const elements = {
   lyrics: document.querySelector('#lyrics')
 };
 
+/*
+  location.origin is like http://127.0.0.1:5173.
+  location.pathname is the current page path.
+  Spotify must redirect back to the exact same URI registered in the developer dashboard.
+*/
 const redirectUri = `${location.origin}${location.pathname}`;
 elements.redirectUri.textContent = redirectUri;
+
+/* localStorage survives page refreshes. Here it remembers only the Client ID for convenience. */
 elements.clientId.value = localStorage.getItem('spotify_client_id') ?? '';
 renderLyrics(0);
 
+/*
+  This is simple application state.
+  Later, React will manage this kind of state more cleanly, but the concept is the same.
+*/
 let currentTrack = null;
 let currentProgressMs = 0;
 let durationMs = 0;
 let isPlaying = false;
 let lastSyncAt = Date.now();
-let timer = window.setInterval(tick, 500);
+
+/* setInterval calls tick() every 500ms so progress and lyric highlighting keep moving. */
+window.setInterval(tick, 500);
 
 init();
 
+/* Event listeners connect user actions to functions. */
 elements.saveClientId.addEventListener('click', () => {
   localStorage.setItem('spotify_client_id', elements.clientId.value.trim());
   setStatus('Client ID 已儲存。');
@@ -60,9 +92,14 @@ elements.previous.addEventListener('click', () => playerCommand('POST', 'https:/
 elements.next.addEventListener('click', () => playerCommand('POST', 'https://api.spotify.com/v1/me/player/next'));
 
 async function init() {
+  /*
+    After Spotify login, Spotify sends the browser back with ?code=...
+    That code is temporary; we exchange it for an access token.
+  */
   const code = new URLSearchParams(location.search).get('code');
   if (code) {
     await exchangeCodeForToken(code);
+    /* Remove ?code=... from the address bar after it has been used. */
     history.replaceState({}, document.title, location.pathname);
   }
 
@@ -80,6 +117,11 @@ async function login() {
 
   localStorage.setItem('spotify_client_id', clientId);
 
+  /*
+    PKCE login uses a random verifier and a hashed challenge.
+    The verifier stays in the browser. Spotify sees the challenge first, then checks the verifier later.
+    This avoids putting a client secret in frontend code.
+  */
   const verifier = generateRandomString(64);
   const challenge = await sha256Base64Url(verifier);
   sessionStorage.setItem('spotify_code_verifier', verifier);
@@ -93,6 +135,7 @@ async function login() {
     redirect_uri: redirectUri
   });
 
+  /* Navigating to Spotify starts the OAuth flow. */
   location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
 }
 
@@ -113,6 +156,10 @@ async function exchangeCodeForToken(code) {
     code_verifier: verifier
   });
 
+  /*
+    fetch sends an HTTP request.
+    await pauses this function until the network response arrives.
+  */
   const response = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -125,6 +172,7 @@ async function exchangeCodeForToken(code) {
     return;
   }
 
+  /* Store token expiry so we know when to ask the user to log in again. */
   const expiresAt = Date.now() + data.expires_in * 1000;
   localStorage.setItem('spotify_access_token', data.access_token);
   localStorage.setItem('spotify_refresh_token', data.refresh_token ?? '');
@@ -139,10 +187,12 @@ async function refreshCurrentlyPlaying() {
     return;
   }
 
+  /* Bearer token means: this request is authorized as the logged-in Spotify user. */
   const response = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
     headers: { Authorization: `Bearer ${token}` }
   });
 
+  /* 204 means success but no content. Spotify uses it when nothing is currently playing. */
   if (response.status === 204) {
     setStatus('Spotify 目前沒有播放中的歌曲。請先在 Spotify 播一首歌。');
     return;
@@ -214,6 +264,10 @@ function logout() {
 }
 
 function tick() {
+  /*
+    Spotify does not push progress every millisecond.
+    We sync once from Spotify, then estimate local progress with Date.now().
+  */
   if (isPlaying) {
     currentProgressMs += Date.now() - lastSyncAt;
     lastSyncAt = Date.now();
@@ -247,7 +301,13 @@ function renderProgress() {
 }
 
 function renderLyrics(progressMs) {
+  /*
+    This simple version redraws the whole lyric list each time.
+    That is fine for a spike. In a larger app, React will update the DOM more systematically.
+  */
   elements.lyrics.innerHTML = '';
+
+  /* Find the lyric line whose start time is before progress, and whose next line is after progress. */
   const activeIndex = lyrics.findIndex((line, index) => {
     const next = lyrics[index + 1];
     return progressMs >= line.startMs && (!next || progressMs < next.startMs);
@@ -281,6 +341,11 @@ function generateRandomString(length) {
 async function sha256Base64Url(value) {
   const data = new TextEncoder().encode(value);
   const digest = await crypto.subtle.digest('SHA-256', data);
+
+  /*
+    OAuth PKCE needs base64url format:
+    normal base64 uses +, /, and =; base64url replaces/removes them for URL safety.
+  */
   return btoa(String.fromCharCode(...new Uint8Array(digest)))
     .replace(/=/g, '')
     .replace(/\+/g, '-')
