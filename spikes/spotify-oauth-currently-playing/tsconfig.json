@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    // Use the 2020 JavaScript baseline.
+    "target": "ES2020",
+    // Use the 2020 module format.
+    "module": "ES2020",
+    // Include browser APIs like document and window.
+    "lib": ["DOM", "ES2020"],
+    "strict": false,
+    "allowJs": false,
+    // Only type-check for now.
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  // Only check the TypeScript learning file.
+  "include": ["app.ts"],
+  "exclude": ["app.js", "app.original.js"]
+}
