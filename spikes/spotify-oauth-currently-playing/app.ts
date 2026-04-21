@@ -84,33 +84,12 @@ const elements = {
 };
 
 const redirectUri = `${location.origin}${location.pathname}`;
-elements.redirectUri.textContent = redirectUri;
-
-elements.clientId.value = localStorage.getItem('spotify_client_id') ?? '';
-renderLyrics(0);
 
 let currentTrack: SpotifyTrack | null = null;
 let currentProgressMs = 0;
 let durationMs = 0;
 let isPlaying = false;
 let lastSyncAt = Date.now();
-
-window.setInterval(tick, 500);
-
-init();
-
-elements.saveClientId.addEventListener('click', () => {
-  localStorage.setItem('spotify_client_id', elements.clientId.value.trim());
-  setStatus('Client ID 已儲存。');
-});
-
-elements.login.addEventListener('click', login);
-elements.logout.addEventListener('click', logout);
-elements.refresh.addEventListener('click', refreshCurrentlyPlaying);
-elements.play.addEventListener('click', () => playerCommand('PUT', 'https://api.spotify.com/v1/me/player/play'));
-elements.pause.addEventListener('click', () => playerCommand('PUT', 'https://api.spotify.com/v1/me/player/pause'));
-elements.previous.addEventListener('click', () => playerCommand('POST', 'https://api.spotify.com/v1/me/player/previous'));
-elements.next.addEventListener('click', () => playerCommand('POST', 'https://api.spotify.com/v1/me/player/next'));
 
 async function init(): Promise<void> {
   const code = new URLSearchParams(location.search).get('code');
@@ -343,3 +322,27 @@ async function sha256Base64Url(value: string): Promise<string> {
     .replace(/\+/g, '-')
     .replace(/\//g, '_');
 }
+
+async function main(): Promise<void> {
+  elements.redirectUri.textContent = redirectUri;
+  elements.clientId.value = localStorage.getItem('spotify_client_id') ?? '';
+  renderLyrics(0);
+
+  elements.saveClientId.addEventListener('click', () => {
+    localStorage.setItem('spotify_client_id', elements.clientId.value.trim());
+    setStatus('Client ID 已儲存。');
+  });
+
+  elements.login.addEventListener('click', login);
+  elements.logout.addEventListener('click', logout);
+  elements.refresh.addEventListener('click', refreshCurrentlyPlaying);
+  elements.play.addEventListener('click', () => playerCommand('PUT', 'https://api.spotify.com/v1/me/player/play'));
+  elements.pause.addEventListener('click', () => playerCommand('PUT', 'https://api.spotify.com/v1/me/player/pause'));
+  elements.previous.addEventListener('click', () => playerCommand('POST', 'https://api.spotify.com/v1/me/player/previous'));
+  elements.next.addEventListener('click', () => playerCommand('POST', 'https://api.spotify.com/v1/me/player/next'));
+
+  window.setInterval(tick, 500);
+  await init();
+}
+
+void main();
