@@ -151,16 +151,15 @@ async function exchangeCodeForToken(code: string): Promise<void> {
     body
   });
 
-  const data = (await response.json()) as TokenResponse | unknown;
+  const data: TokenResponse = await response.json();
   if (!response.ok) {
     setStatus(`換 token 失敗：${JSON.stringify(data, null, 2)}`);
     return;
   }
 
-  const tokenData = data as TokenResponse;
-  const expiresAt = Date.now() + tokenData.expires_in * 1000;
-  localStorage.setItem('spotify_access_token', tokenData.access_token);
-  localStorage.setItem('spotify_refresh_token', tokenData.refresh_token ?? '');
+  const expiresAt = Date.now() + data.expires_in * 1000;
+  localStorage.setItem('spotify_access_token', data.access_token);
+  localStorage.setItem('spotify_refresh_token', data.refresh_token ?? '');
   localStorage.setItem('spotify_expires_at', String(expiresAt));
   setStatus('登入成功，準備讀取目前播放。');
 }
@@ -181,17 +180,16 @@ async function refreshCurrentlyPlaying(): Promise<void> {
     return;
   }
 
-  const data = (await response.json()) as CurrentlyPlayingResponse | unknown;
+  const data: CurrentlyPlayingResponse = await response.json();
   if (!response.ok) {
     setStatus(`讀取失敗：${JSON.stringify(data, null, 2)}`);
     return;
   }
 
-  const playingData = data as CurrentlyPlayingResponse;
-  currentTrack = playingData.item;
-  currentProgressMs = playingData.progress_ms ?? 0;
+  currentTrack = data.item;
+  currentProgressMs = data.progress_ms ?? 0;
   durationMs = currentTrack?.duration_ms ?? 0;
-  isPlaying = playingData.is_playing;
+  isPlaying = data.is_playing;
   lastSyncAt = Date.now();
 
   renderTrack();
