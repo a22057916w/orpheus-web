@@ -81,10 +81,10 @@ npm install -g typescript
 Then you can compile TypeScript into JavaScript:
 
 ```powershell
-tsc app.ts
+tsc
 ```
 
-That command usually writes `app.js`, which is the file loaded by `index.html`.
+Because this folder already has a `tsconfig.json`, `tsc` will read that config, compile `app.ts`, and write the updated `app.js` that `index.html` loads in the browser.
 
 ## Spotify Developer App Setup
 
