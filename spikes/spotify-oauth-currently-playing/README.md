@@ -12,6 +12,14 @@ It tests:
 - Basic playback commands
 - Fake lyric highlighting from `progress_ms`
 
+## Files
+
+- `index.html`: page structure
+- `styles.css`: page styling
+- `app.js`: browser JavaScript loaded by the page
+- `app.ts`: TypeScript version of the same spike logic for learning and comparison
+- `app.original.js`: preserved copy of the earlier JavaScript version
+
 ## Run
 
 From this folder:
@@ -46,6 +54,37 @@ http://127.0.0.1:5173/
 ```
 
 Opening `index.html` directly as a `file://` URL is not ideal for OAuth testing. Python is only a temporary local server for this spike. In the real Orpheus Web app, this role will likely be handled by Next.js or Vite with a command such as `npm run dev`.
+
+## TypeScript Note
+
+This folder now includes both JavaScript and TypeScript versions of the spike logic:
+
+- `app.ts` is the TypeScript version, with explicit types added to the same browser flow.
+- `app.js` is the file the browser runs.
+- `app.original.js` keeps the original JavaScript source around for reference.
+
+The browser still runs JavaScript, not TypeScript directly. To compile `app.ts`, you first need Node.js, because `npm` comes with Node.js and is commonly used to install TypeScript.
+
+Check whether Node.js and npm are available:
+
+```powershell
+node -v
+npm -v
+```
+
+If they are missing, install Node.js first. After that, install TypeScript:
+
+```powershell
+npm install -g typescript
+```
+
+Then you can compile TypeScript into JavaScript:
+
+```powershell
+tsc app.ts
+```
+
+That command usually writes `app.js`, which is the file loaded by `index.html`.
 
 ## Spotify Developer App Setup
 
