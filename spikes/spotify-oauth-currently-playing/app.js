@@ -42,27 +42,11 @@ const elements = {
     lyrics: qs('#lyrics')
 };
 const redirectUri = `${location.origin}${location.pathname}`;
-elements.redirectUri.textContent = redirectUri;
-elements.clientId.value = localStorage.getItem('spotify_client_id') ?? '';
-renderLyrics(0);
 let currentTrack = null;
 let currentProgressMs = 0;
 let durationMs = 0;
 let isPlaying = false;
 let lastSyncAt = Date.now();
-window.setInterval(tick, 500);
-init();
-elements.saveClientId.addEventListener('click', () => {
-    localStorage.setItem('spotify_client_id', elements.clientId.value.trim());
-    setStatus('Client ID 已儲存。');
-});
-elements.login.addEventListener('click', login);
-elements.logout.addEventListener('click', logout);
-elements.refresh.addEventListener('click', refreshCurrentlyPlaying);
-elements.play.addEventListener('click', () => playerCommand('PUT', 'https://api.spotify.com/v1/me/player/play'));
-elements.pause.addEventListener('click', () => playerCommand('PUT', 'https://api.spotify.com/v1/me/player/pause'));
-elements.previous.addEventListener('click', () => playerCommand('POST', 'https://api.spotify.com/v1/me/player/previous'));
-elements.next.addEventListener('click', () => playerCommand('POST', 'https://api.spotify.com/v1/me/player/next'));
 async function init() {
     const code = new URLSearchParams(location.search).get('code');
     if (code) {
@@ -112,15 +96,14 @@ async function exchangeCodeForToken(code) {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body
     });
-    const data = (await response.json());
+    const data = await response.json();
     if (!response.ok) {
         setStatus(`換 token 失敗：${JSON.stringify(data, null, 2)}`);
         return;
     }
-    const tokenData = data;
-    const expiresAt = Date.now() + tokenData.expires_in * 1000;
-    localStorage.setItem('spotify_access_token', tokenData.access_token);
-    localStorage.setItem('spotify_refresh_token', tokenData.refresh_token ?? '');
+    const expiresAt = Date.now() + data.expires_in * 1000;
+    localStorage.setItem('spotify_access_token', data.access_token);
+    localStorage.setItem('spotify_refresh_token', data.refresh_token ?? '');
     localStorage.setItem('spotify_expires_at', String(expiresAt));
     setStatus('登入成功，準備讀取目前播放。');
 }
@@ -137,16 +120,15 @@ async function refreshCurrentlyPlaying() {
         setStatus('Spotify 目前沒有播放中的歌曲。請先在 Spotify 播一首歌。');
         return;
     }
-    const data = (await response.json());
+    const data = await response.json();
     if (!response.ok) {
         setStatus(`讀取失敗：${JSON.stringify(data, null, 2)}`);
         return;
     }
-    const playingData = data;
-    currentTrack = playingData.item;
-    currentProgressMs = playingData.progress_ms ?? 0;
+    currentTrack = data.item;
+    currentProgressMs = data.progress_ms ?? 0;
     durationMs = currentTrack?.duration_ms ?? 0;
-    isPlaying = playingData.is_playing;
+    isPlaying = data.is_playing;
     lastSyncAt = Date.now();
     renderTrack();
     setStatus(JSON.stringify({
@@ -259,3 +241,22 @@ async function sha256Base64Url(value) {
         .replace(/\+/g, '-')
         .replace(/\//g, '_');
 }
+async function main() {
+    elements.redirectUri.textContent = redirectUri;
+    elements.clientId.value = localStorage.getItem('spotify_client_id') ?? '';
+    renderLyrics(0);
+    elements.saveClientId.addEventListener('click', () => {
+        localStorage.setItem('spotify_client_id', elements.clientId.value.trim());
+        setStatus('Client ID 已儲存。');
+    });
+    elements.login.addEventListener('click', login);
+    elements.logout.addEventListener('click', logout);
+    elements.refresh.addEventListener('click', refreshCurrentlyPlaying);
+    elements.play.addEventListener('click', () => playerCommand('PUT', 'https://api.spotify.com/v1/me/player/play'));
+    elements.pause.addEventListener('click', () => playerCommand('PUT', 'https://api.spotify.com/v1/me/player/pause'));
+    elements.previous.addEventListener('click', () => playerCommand('POST', 'https://api.spotify.com/v1/me/player/previous'));
+    elements.next.addEventListener('click', () => playerCommand('POST', 'https://api.spotify.com/v1/me/player/next'));
+    window.setInterval(tick, 500);
+    await init();
+}
+void main();

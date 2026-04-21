@@ -8,8 +8,6 @@
     "lib": ["DOM", "ES2020"],
     "strict": false,
     "allowJs": false,
-    // Only type-check for now.
-    "noEmit": true,
     "skipLibCheck": true
   },
   // Only check the TypeScript learning file.
